@@ -6,8 +6,8 @@ export const siteConfig = {
   footer: [
     { name: "Home", href: "/" },
     { name: "About", href: "#" },
-    { name: "Terms & Conditions", href: "#" },
-    { name: "Shipping & Return Policy", href: "#" },
+    { name: "Contact Us", href: "#" },
+    { name: "Support", href: "#" },
     { name: "Privacy Policy", href: "#" },
     { name: "FAQ", href: "#" },
   ],
