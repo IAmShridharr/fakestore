@@ -1,14 +1,36 @@
 import { NextResponse } from "next/server"
 // @ts-ignore
-import { validateCartItems } from "use-shopping-cart/utilities"
 
-import { inventory } from "@/config/inventory"
 import { stripe } from "@/lib/stripe"
 
 export async function POST(request: Request) {
     const cartDetails = await request.json()
-    const lineItems = validateCartItems(inventory, cartDetails)
+    // const lineItems = validateCartItems(inventory, cartDetails)
     const origin = request.headers.get('origin')
+
+    // Initialize an empty array to store lineItems
+    const lineItems = [];
+
+    // Iterate over each product in cartDetails
+    for (const productId in cartDetails) {
+        if (cartDetails.hasOwnProperty(productId)) {
+            const product = cartDetails[productId];
+
+            // Create a line item for the current product and push it to lineItems array
+            lineItems.push({
+            price_data: {
+                currency: product.currency,
+                unit_amount: product.price,
+                product_data: {
+                    name: product.name
+                },
+            },
+            quantity: product.quantity,
+            });
+        }
+    }
+
+    console.log(lineItems);
 
     const session = await stripe.checkout.sessions.create({
         submit_type: "pay",

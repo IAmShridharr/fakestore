@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils"
 import { ProductFilters } from "@/components/product-filters"
 import { ProductGrid } from "@/components/product-grid"
 import { ProductSort } from "@/components/product-sort"
-import { seedSanityData } from "@/lib/seed"
 
 interface Props {
   searchParams: {
@@ -21,18 +20,24 @@ interface Props {
 }
 
 export default async function Page({searchParams}: Props) {
-  const { date="desc", price, color, category, size, search } = searchParams
+  const { date = "desc", price, color, category, size, search } = searchParams;
 
-  const priceOrder = price ? `| order(price ${price})` : ""
-  const dateOrder = date ? `| order(_createdAt ${date})` : ""
-  const order = `${priceOrder}${dateOrder}`
+  const priceOrder = price ? `| order(price ${price})` : "";
+  const dateOrder = date ? `| order(_createdAt ${date})` : "";
+  const order = `${priceOrder}${dateOrder}`;
 
-  const productFilter = `_type=="product"`
-  const colorFilter = color ? `&& "${color}" in colors` : ""
-  const categoryFilter = category ? `&& "${category}" in categories` : ""
-  const sizeFilter = size ? `&& "${size}" in sizes` : ""
-  const searchFilter = search ? `&& name match "${search}"` : ""
-  const filter = `*[${productFilter}${colorFilter}${categoryFilter}${sizeFilter}${searchFilter}]`
+  const filters = [
+    `_type == "product"`,
+    color ? `"${color}" in colors` : null,
+    category ? `"${category}" in categories` : null,
+    size ? `"${size}" in sizes` : null,
+    search ? `name match "${search}"` : null,
+  ];
+
+  // Filter out null values (filters that are not provided)
+  const filterConditions = filters.filter((filter) => filter !== null);
+
+  const filter = `* [${filterConditions.join(" && ")}]`;
 
   const products = await client.fetch<SanityProduct[]>(groq`${filter} ${order} {
     _id,
@@ -40,11 +45,14 @@ export default async function Page({searchParams}: Props) {
     name,
     sku,
     images,
+    categories,
     currency,
     price,
     description,
     "slug": slug.current
   }`)
+
+  console.log(products);
 
   return (
     <div>
