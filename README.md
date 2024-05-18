@@ -1,3 +1,3 @@
 ## E-Commerce App
 
-- [Project Link](https://fake-store-iota.vercel.app)
+- [Project Link](https://fakestoree.vercel.app)
